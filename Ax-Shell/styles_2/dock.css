@@ -1,0 +1,52 @@
+#dock {
+  background-color: rgba(72, 54, 54, 0.85);
+  padding: 8px;
+  margin: 8px;
+  border-radius: 12px;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#dock.vertical {
+  margin: 8px 0 8px 8px;
+}
+
+#dock.dense {
+  margin: 8px;
+  border: 2px solid rgba(254, 248, 225, 0.35);
+}
+
+#dock.edge {
+  border-radius: 12px;
+  border: 2px solid rgba(254, 248, 225, 0.35);
+  border-bottom: none;
+}
+
+#dock.integrated {
+  background-color: rgba(72, 54, 54, 0.85);
+  padding: 4px;
+  border-radius: 12px;
+  border: none;
+}
+
+#dock-app-button {
+  padding: 4px;
+  border-radius: 12px;
+  background-color: rgba(72, 54, 54, 0.75);
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  transition: all 0.25s ease;
+}
+
+#dock-app-button:hover {
+  background-color: rgba(87, 167, 177, 0.15);
+}
+
+#dock-app-button:active,
+#dock-app-button.instance {
+  background-color: rgba(87, 167, 177, 0.35);
+}
+
+#dock-separator {
+  padding: 2px;
+  border-radius: 12px;
+  background-color: rgba(254, 248, 225, 0.35);
+}

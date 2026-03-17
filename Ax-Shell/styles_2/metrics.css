@@ -1,0 +1,104 @@
+#metrics-small {
+  background-color: rgba(72, 54, 54, 0.85); /* Изменено с rgba(0,0,0,0.25) */
+  padding: 4px;
+  border-radius: 12px; /* Добавлено */
+}
+
+#metrics-small.invert {
+  background-color: rgba(72,54,54,0.75);
+  border-radius: 12px;
+}
+
+#metrics-circle {
+  color: #fef8e1;
+  border: 3px solid rgba(87,167,177,0.45);
+}
+
+#metrics-circle.bat {
+  border: 3px solid #57a7b1;
+}
+
+#metrics-circle.alert {
+  border: 3px solid #b73936;
+}
+
+#metrics-icon {
+  font-size: 16px;
+}
+
+#metrics-icon.alert {
+  color: #b73936;
+}
+
+#metrics-level {
+  font-weight: bold;
+  margin: 0 4px;
+}
+
+#metrics-sep {
+  min-width: 4px;
+}
+
+#network-icon-label {
+  color: #fef8e1;
+  font-size: 20px;
+  padding: 4px;
+  border-radius: 11px;
+  transition: all 0.1s ease;
+}
+
+#download-label {
+  color: #57a7b1;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px;
+  border-radius: 11px;
+  transition: all 0.1s ease;
+}
+
+#download-label.urgent {
+  color: rgba(72,54,54,0.85);
+}
+
+#network-icon-label.urgent {
+  color: rgba(72,54,54,0.85);
+}
+
+#button-bar.download {
+  background-color: #57a7b1;
+}
+
+#button-bar.upload {
+  background-color: #fef8e1;
+}
+
+#download-icon-label {
+  color: #57a7b1;
+  font-size: 16px;
+}
+
+#download-icon-label.urgent {
+  color: rgba(72,54,54,0.85);
+}
+
+#upload-icon-label {
+  color: #fef8e1;
+  font-size: 16px;
+}
+
+#upload-label {
+  color: #fef8e1;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px;
+  border-radius: 11px;
+  transition: all 0.1s ease;
+}
+
+#upload-label.urgent {
+  color: rgba(72,54,54,0.85);
+}
+
+#upload-icon-label.urgent {
+  color: rgba(72,54,54,0.85);
+}

@@ -1,0 +1,101 @@
+#workspaces {
+  padding: 14px;
+}
+
+#workspaces-num {
+  padding: 4px;
+}
+
+#workspaces-container {
+  background-color: rgba(72,54,54,0.85);
+}
+
+#workspaces-container.invert {
+  background-color: rgba(72,54,54,0.75);
+  border-radius: 12px;
+}
+
+#workspaces > button {
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #fef8e1;
+}
+
+#workspaces > button > label {
+  font-size: 0px;
+}
+
+#workspaces > button.empty:hover {
+  background-color: #fef8e1;
+}
+
+#workspaces > button.urgent {
+  background-color: #b73936;
+}
+
+#workspaces > button.active {
+  min-width: 48px;
+  min-height: 8px;
+  background-color: #fef8e1;
+}
+
+#workspaces > button.active.vertical {
+  min-width: 8px;
+  min-height: 48px;
+  background-color: #fef8e1;
+}
+
+#workspaces > button.empty {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#workspaces-num > button > label {
+  color: #fef8e1;
+}
+
+#workspaces-num {
+  padding: 8px;
+}
+
+#workspaces-num > button {
+  border-radius: 20px;
+}
+
+#workspaces-num > button > label {
+  color: #fef8e1;
+  font-weight: bold;
+  min-width: 20px;
+  min-height: 20px;
+  font-size: 10pt;
+}
+
+#workspaces-num > button:hover {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#workspaces-num > button.active {
+  background-color: rgba(87,167,177,0.45);
+  border-radius: 8px;
+}
+
+#workspaces-num > button.active > label {
+  color: rgba(72,54,54,0.85);
+}
+
+#workspaces-num > button.empty > label {
+  color: rgba(87,167,177,0.15);
+}
+
+#workspaces-num > button.empty:hover > label {
+  color: #fef8e1;
+}
+
+#workspaces-num > button.empty:hover {
+  background-color: transparent;
+}
+
+#workspaces-num > button.urgent > label {
+  color: #b73936;
+}

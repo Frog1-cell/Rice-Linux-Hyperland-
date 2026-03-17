@@ -1,0 +1,37 @@
+#search-entry,
+#session-name-entry {
+  background-color: rgba(0,0,0,0.25);
+  color: #fef8e1;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+#close-button,
+#clear-button,
+#config-button {
+  background-color: rgba(72,54,54,0.85);
+  border-radius: 16px;
+}
+
+#close-button:hover {
+  background-color: rgba(183,57,54,0.35);
+}
+
+#slot-button {
+  border-radius: 16px;
+  min-height: 48px;
+}
+
+#slot-button:hover {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#app-label {
+  color: #fef8e1;
+  font-weight: bold;
+}
+
+#app-desc {
+  color: rgba(254,248,225,0.5);
+  font-size: 12px;
+}

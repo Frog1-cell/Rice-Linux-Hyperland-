@@ -1,0 +1,64 @@
+#battery {
+  background-color: rgba(25, 26, 37, 0.85);
+  padding: 6px;
+  border-radius: 16px;
+  margin-top: 4px;
+}
+
+#battery-circle {
+  color: #f7fefe;
+  border: 3px solid rgba(60, 113, 156, 0.45);
+}
+
+#battery-circle.alert {
+  border-color: rgba(117, 63, 104, 0.8);
+}
+
+#battery-icon {
+  font-size: 20px;
+  color: #f7fefe;
+}
+
+#battery-icon.alert {
+  color: #753f68;
+}
+
+#battery-save,
+#battery-balanced,
+#battery-performance {
+  border-radius: 12px;
+  min-width: 28px;
+  min-height: 28px;
+  transition: background-color 0.2s ease;
+}
+
+#battery-save:hover,
+#battery-balanced:hover,
+#battery-performance:hover {
+  background-color: rgba(60, 113, 156, 0.15);
+}
+
+#battery-save.active,
+#battery-balanced.active,
+#battery-performance.active {
+  background-color: rgba(247, 254, 254, 0.45);
+}
+
+#battery-save-label,
+#battery-balanced-label,
+#battery-performance-label {
+  font-size: 18px;
+  color: #f7fefe;
+}
+
+#battery-save.active label,
+#battery-balanced.active label,
+#battery-performance.active label {
+  color: #191a25;
+}
+
+#battery-level {
+  color: #f7fefe;
+  font-weight: bold;
+  margin: 0 6px;
+}

@@ -1,0 +1,71 @@
+#control-slider {
+  background-color: transparent;
+  margin: 0;
+  border-radius: 12px;
+}
+
+#control-slider trough {
+  min-height: 20px;
+  border-radius: 10px;
+  background-color: rgba(72, 54, 54, 0.6);
+}
+
+#control-slider trough highlight {
+  background-color: rgba(87, 167, 177, 0.8);
+  border-radius: 10px;
+  min-height: 20px;
+}
+
+#control-slider slider {
+  background-color: #fef8e1;
+  border-radius: 2px;
+  min-width: 4px;
+  min-height: 28px;
+  margin: -4px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+#control-slider slider:hover {
+  background-color: #57a7b1;
+}
+
+#control-slider.muted trough highlight,
+#control-slider.muted slider {
+  background-color: rgba(254, 248, 225, 0.25);
+}
+
+#control-slider.muted slider {
+  background-color: #fef8e1;
+}
+
+#control-slider.muted slider:hover {
+  background-color: #b73936;
+}
+
+/* Остальные стили controls.css */
+#control-small {
+  padding: 6px;
+  background-color: rgba(72, 54, 54, 0.85);
+  border-radius: 12px;
+}
+
+#vol-icon,
+#mic-icon,
+#brightness-icon {
+  background-color: rgba(87, 167, 177, 0.35);
+  border-radius: 12px 0 0 12px;
+}
+
+#vol-label,
+#mic-label,
+#brightness-label {
+  font-size: 14px;
+  color: #fef8e1;
+}
+
+#mixer-section {
+  border-radius: 16px;
+  border: 2px solid rgba(178, 177, 146, 0.35);
+  padding: 6px;
+}

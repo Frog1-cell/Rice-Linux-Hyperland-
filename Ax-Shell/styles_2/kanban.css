@@ -1,0 +1,32 @@
+#kanban {
+  border-radius: 16px;
+  border: 2px solid rgba(178,177,146,0.35);
+  padding: 6px;
+  background-color: rgba(72,54,54,0.85);
+}
+
+#kanban-header {
+  border-radius: 12px;
+  padding: 6px;
+}
+
+#kanban-note {
+  background-color: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+#kanban-btn,
+#kanban-btn-add {
+  background-color: rgba(87,167,177,0.25);
+  border-radius: 8px;
+}
+
+#kanban-btn:hover,
+#kanban-btn-add:hover {
+  background-color: rgba(87,167,177,0.35);
+}
+
+#kanban-btn-label {
+  color: #fef8e1;
+}

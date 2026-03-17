@@ -1,0 +1,27 @@
+#pin-add {
+  font-size: 24px;
+  color: rgba(60,113,156,0.15);
+}
+
+#pin-cell-box {
+  border-radius: 16px;
+  padding: 16px;
+  border: 4px solid rgba(25,26,37,0.75);
+}
+
+#pin-file,
+#pin-url {
+  font-weight: bold;
+}
+
+#pin-add:hover {
+  color: #f7fefe;
+}
+
+#pin-text {
+  font-weight: bold;
+}
+
+#pin-url-icon {
+  color: #f7fefe;
+}

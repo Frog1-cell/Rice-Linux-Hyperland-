@@ -1,0 +1,88 @@
+#bluetooth-header,
+#network-header {
+  border: 2px solid rgba(60, 113, 156, 0.35);
+  padding: 6px;
+  border-radius: 12px;
+  background-color: rgba(25, 26, 37, 0.85);
+}
+
+#bluetooth-device,
+#wifi-ap-slot {
+  border: 2px solid rgba(247, 254, 254, 0.25);
+  border-radius: 12px;
+  padding: 6px;
+  background-color: rgba(25, 26, 37, 0.75);
+}
+
+#bluetooth-scan,
+#bluetooth-back,
+#network-refresh,
+#network-back {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 6px;
+  transition: background-color 0.2s ease;
+}
+
+#bluetooth-scan:hover,
+#bluetooth-back:hover,
+#network-refresh:hover,
+#network-back:hover {
+  background-color: rgba(60, 113, 156, 0.15);
+}
+
+#bluetooth-back-label,
+#network-back-label,
+#bluetooth-scan-label,
+#network-refresh-label {
+  font-size: 20px;
+  color: #f7fefe;
+}
+
+#bluetooth-section {
+  background-color: rgba(25, 26, 37, 0.85);
+  border-radius: 12px;
+  padding: 8px;
+  font-weight: bold;
+}
+
+#bluetooth-connect,
+#wifi-connect-button {
+  background-color: rgba(60, 113, 156, 0.25);
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+#wifi-connect-button.connected,
+#bluetooth-connect.connected {
+  background-color: rgba(60, 113, 156, 0.45);
+}
+
+#wifi-connect-button.connected label,
+#bluetooth-connect.connected label {
+  color: #191a25;
+}
+
+#bluetooth-connect:hover {
+  background-color: rgba(60, 113, 156, 0.35);
+}
+
+#bluetooth-paired,
+#bluetooth-available {
+  background-color: rgba(25, 26, 37, 0.75);
+  border-radius: 16px;
+  padding: 6px;
+}
+
+#bluetooth-scan.scanning,
+#bluetooth-scan-label.scanning {
+  animation: blink 0.8s ease infinite;
+}
+
+@keyframes blink {
+  0%   { background-color: rgba(60, 113, 156, 0.35); }
+  50%  { background-color: rgba(25, 26, 37, 0.85); }
+  100% { background-color: rgba(60, 113, 156, 0.35); }
+}

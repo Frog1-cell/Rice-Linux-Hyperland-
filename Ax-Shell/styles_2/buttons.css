@@ -1,0 +1,66 @@
+#network-button,
+#bluetooth-button,
+#night-mode-button,
+#caffeine-button {
+  min-height: 52px;
+  border-radius: 16px;
+  background-color: rgba(72, 54, 54, 0.85);
+  transition: all 0.25s ease;
+}
+
+#night-mode-button,
+#caffeine-button {
+  padding: 0 12px;
+}
+
+#night-mode-button.disabled,
+#caffeine-button.disabled {
+  background-color: rgba(72, 54, 54, 0.6);
+}
+
+#network-status-button,
+#network-menu-button,
+#bluetooth-status-button,
+#bluetooth-menu-button {
+  background-color: rgba(87, 167, 177, 0.35);
+  padding: 0 10px;
+}
+
+#network-menu-button,
+#bluetooth-menu-button {
+  border-left: 1px solid rgba(254, 248, 225, 0.25);
+}
+
+#network-status-button:hover,
+#network-menu-button:hover,
+#bluetooth-status-button:hover,
+#bluetooth-menu-button:hover,
+#night-mode-button:hover,
+#caffeine-button:hover {
+  background-color: rgba(87, 167, 177, 0.45);
+}
+
+#network-icon,
+#bluetooth-icon,
+#night-mode-icon,
+#caffeine-icon {
+  color: #fef8e1;
+  font-size: 22px;
+}
+
+#network-label,
+#bluetooth-label,
+#night-mode-label,
+#caffeine-label {
+  color: #fef8e1;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#network-ssid,
+#bluetooth-status,
+#night-mode-status,
+#caffeine-status {
+  color: rgba(254, 248, 225, 0.65);
+  font-size: 12px;
+}

@@ -1,0 +1,64 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#overview-icon {
+  background-color: #fef8e1;
+}
+
+#overview-client-box,
+#overview-workspace-bg,
+#overview-frame {
+  border-radius: 12px;
+  transition: all 0.1s ease;
+}
+
+#overview.show {
+  animation: fadeIn 0.25s ease;
+}
+
+#overview-client-box {
+  background-color: rgba(72,54,54,0.85);
+  border: 3px solid rgba(72,54,54,0.75);
+}
+
+#overview-client-box:hover {
+  background-color: rgba(72,54,54,0.75);
+}
+
+#overview-client-box:focus {
+  background-color: rgba(72,54,54,0.75);
+  border: 3px solid #fef8e1;
+}
+
+#overview-client-box:active {
+  background-color: rgba(87,167,177,0.15);
+  border: 3px solid rgba(87,167,177,0.15);
+}
+
+#overview-workspace-bg {
+  border-radius: 20px;
+}
+
+#overview-workspace-box {
+  padding: 4px;
+  border: 2px solid rgba(72,54,54,0.75);
+}
+
+#overview-add-label {
+  font-size: 24px;
+  color: rgba(87,167,177,0.15);
+}
+
+#overview-workspace-label {
+  font-weight: bold;
+  background-color: rgba(72,54,54,0.75);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 4px;
+}

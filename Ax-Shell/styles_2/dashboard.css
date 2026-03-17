@@ -1,0 +1,143 @@
+/* Основные контейнеры */
+#box-1,
+#box-2,
+#box-3,
+#box-x {
+  border-radius: 12px;
+  background-color: rgba(72, 54, 54, 0.85);
+  padding: 8px;
+}
+
+#container-1,
+#container-2,
+#container-3 {
+  border-radius: 12px;
+}
+
+#container-sub-1 {
+  /* можно выставить min-width если нужно */
+}
+
+#box-3 {
+  min-width: 88px;
+}
+
+#box-x {
+  min-height: 28px;
+}
+
+/* Stack switcher */
+#switcher.stack-switcher > * {
+  padding: 4px;
+  border-radius: 12px;
+  transition: all 0.1s ease;
+  background-color: rgba(72, 54, 54, 0.75);
+}
+
+#switcher.stack-switcher > *:checked {
+  background-color: rgba(87, 167, 177, 0.35);
+}
+
+#switcher.stack-switcher > *:hover,
+#switcher.stack-switcher > *:active,
+#switcher.stack-switcher > *:focus {
+  background-color: rgba(87, 167, 177, 0.15);
+}
+
+#switcher.stack-switcher button label {
+  font-weight: bold;
+  color: #fef8e1;
+}
+
+#switcher.stack-switcher > *:checked label {
+  color: #483636;
+}
+
+/* Labels и метрики */
+#coming-soon-label {
+  font-size: 16px;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#metrics {
+  border-radius: 12px;
+  border: 2px solid rgba(254, 248, 225, 0.35);
+  padding: 8px;
+}
+
+/* Resource bars – жирные треки */
+#gpu-usage trough,
+#cpu-usage trough,
+#ram-usage trough,
+#disk-usage trough {
+  background-color: rgba(72, 54, 54, 0.75);
+  border-radius: 8px;
+  min-height: 16px;
+}
+
+#gpu-usage trough highlight,
+#cpu-usage trough highlight,
+#ram-usage trough highlight,
+#disk-usage trough highlight {
+  border-radius: 8px;
+  min-height: 16px;
+}
+
+#gpu-usage trough highlight {
+  background-color: rgba(87, 167, 177, 0.8);
+}
+
+#cpu-usage trough highlight {
+  background-color: rgba(104, 151, 169, 0.8);
+}
+
+#ram-usage trough highlight {
+  background-color: rgba(206, 241, 216, 0.8);
+}
+
+#disk-usage trough highlight {
+  background-color: rgba(235, 174, 158, 0.8);
+}
+
+/* Тонкие ручки для ресурсных баров */
+#gpu-usage slider,
+#cpu-usage slider,
+#ram-usage slider,
+#disk-usage slider {
+  background-color: #fef8e1;
+  border: none;
+  border-radius: 2px;
+  min-width: 4px;
+  min-height: 22px;
+  margin: -3px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease;
+}
+
+#gpu-usage slider:hover,
+#cpu-usage slider:hover,
+#ram-usage slider:hover,
+#disk-usage slider:hover {
+  background-color: #57a7b1;
+}
+
+/* Labels colors */
+#gpu-label,
+#cpu-label {
+  color: #57a7b1;
+}
+
+#ram-label {
+  color: #cef1d8;
+}
+
+#disk-label {
+  color: #ebae9e;
+}
+
+#applet-stack {
+  border-radius: 12px;
+  border: 2px solid rgba(254, 248, 225, 0.35);
+  padding: 4px;
+}

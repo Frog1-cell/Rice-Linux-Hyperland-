@@ -1,0 +1,72 @@
+#bar-inner,
+#bar-inner.pills {
+  margin: 0 8px 8px 8px;
+  background-color: transparent;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+#date-time,
+#language,
+#weather,
+#systray {
+  background-color: rgba(72, 54, 54, 0.85); /* Добавляем фон */
+  border-radius: 12px;
+  padding: 0 8px;
+  min-height: 36px;
+}
+
+#lang-label,
+#weather-label {
+  font-weight: bold;
+  color: #fef8e1;
+}
+
+#button-bar {
+  padding: 4px;
+  min-width: 28px;
+  min-height: 28px;
+  background-color: rgba(72, 54, 54, 0.85); /* Добавляем фон */
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+#button-bar-label {
+  color: #fef8e1;
+  font-size: 20px;
+  padding: 4px;
+  border-radius: 40px;
+}
+
+#button-bar:hover #button-bar-label {
+  background-color: rgba(87, 167, 177, 0.15);
+}
+
+#button-bar:active #button-bar-label {
+  background-color: rgba(87, 167, 177, 0.35);
+  color: #483636;
+}
+
+menu {
+  border: 1px solid rgba(254, 248, 225, 0.35);
+  border-radius: 12px;
+  background-color: rgba(72, 54, 54, 0.85);
+  padding: 6px;
+}
+
+menu > menuitem:hover {
+  background-color: rgba(87, 167, 177, 0.35);
+}
+
+tooltip {
+  border: 1px solid rgba(254, 248, 225, 0.35);
+  background-color: rgba(72, 54, 54, 0.85);
+  padding: 6px 10px;
+  border-radius: 12px;
+  animation: tooltipShow 0.25s ease;
+}
+
+@keyframes tooltipShow {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

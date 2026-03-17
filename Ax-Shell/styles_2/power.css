@@ -1,0 +1,31 @@
+#power-menu-button {
+  border-radius: 40px;
+  min-width: 52px;
+  min-height: 52px;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#power-menu-button label {
+  font-size: 24px;
+  color: #fef8e1;
+}
+
+#power-menu-button:hover,
+#power-menu-button:focus {
+  border-radius: 20px;
+  background-color: rgba(87,167,177,0.15);
+}
+
+#power-menu-button:hover label,
+#power-menu-button:focus label {
+  color: #fef8e1;
+}
+
+#power-menu-button:active {
+  border-radius: 40px;
+  background-color: rgba(87,167,177,0.45);
+}
+
+#power-menu-button:active label {
+  color: rgba(72,54,54,0.85);
+}

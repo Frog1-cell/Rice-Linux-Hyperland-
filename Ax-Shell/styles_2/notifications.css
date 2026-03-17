@@ -1,0 +1,187 @@
+#action-button {
+  border-radius: 16px;
+  background-color: rgba(72,54,54,0.75);
+  padding: 8px;
+}
+
+#action-button:hover {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#action-button:active {
+  background-color: rgba(87,167,177,0.45);
+}
+
+#action-button:active #button-label {
+  color: rgba(72,54,54,0.85);
+}
+
+#notification-image image {
+  border-radius: 16px;
+}
+
+#notification-summary,
+#button-label {
+  font-weight: bold;
+}
+
+#notification-summary {
+  font-weight: bold;
+  color: #fef8e1;
+}
+
+#notification-app-name {
+  color: rgba(254,248,225,0.65);
+}
+
+#action-button {
+  margin-top: 8px;
+}
+
+#notification-stack-box {
+  border-radius: 32px;
+  padding: 16px;
+  border: 2px solid rgba(72,54,54,0.75);
+  background-color: rgba(72,54,54,0.85);
+  margin: 8px;
+  margin-bottom: 4px;
+  min-width: 330px;
+}
+
+#notification-navigation {
+  padding: 16px;
+}
+
+#notif-close-button {
+  background-color: rgba(72,54,54,0.75);
+  border-radius: 16px;
+  padding: 8px;
+}
+
+#notif-close-button:hover,
+#notif-close-button:focus {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#notif-close-button:active {
+  background-color: #b73936;
+}
+
+#notif-close-label {
+  color: #b73936;
+  font-size: 16px;
+}
+
+#notif-close-button:active #notif-close-label {
+  color: rgba(72,54,54,0.85);
+}
+
+#nav-button {
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(72,54,54,0.85);
+  border: 2px solid rgba(72,54,54,0.75);
+  margin-top: -12px;
+}
+
+#nav-button:hover {
+  background: rgba(87,167,177,0.15);
+}
+
+#nav-button:disabled #nav-button-label {
+  color: rgba(87,167,177,0.15);
+}
+
+#nav-button-label {
+  font-size: 16px;
+}
+
+#nav-button-label.close {
+  color: #b73936;
+}
+
+#nav-button:hover #nav-button-label {
+  color: #fef8e1;
+}
+
+#nav-button:hover #nav-button-label.close {
+  color: #b73936;
+}
+
+#notification-history scrollbar {
+  background: transparent;
+}
+
+#notification-history scrollbar.vertical slider {
+  background: #fef8e1;
+  border-radius: 8px;
+  min-width: 16px;
+  min-height: 48px;
+  margin: 4px;
+}
+
+#notification-history scrollbar.vertical trough {
+  background: rgba(72,54,54,0.75);
+  border: none;
+  border-radius: 12px;
+  margin: 4px;
+}
+
+#notification-box-hist {
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid rgba(72,54,54,0.75);
+}
+
+#notification-timestamp {
+  color: rgba(87,167,177,0.15);
+}
+
+#notification-history-header {
+  border-radius: 12px;
+  border: 2px solid rgba(72,54,54,0.75);
+  padding: 4px;
+  margin-bottom: 4px;
+}
+
+#nhh {
+  font-weight: bold;
+}
+
+#nhh-button {
+  border-radius: 8px;
+  background-color: rgba(72,54,54,0.75);
+  padding: 4px;
+}
+
+#nhh-button:hover {
+  background-color: rgba(87,167,177,0.15);
+}
+
+#nhh-button-label {
+  color: #b73936;
+  font-size: 20px;
+}
+
+#dnd-label {
+  font-size: 20px;
+  margin-left: 4px;
+}
+
+#notif-sep {
+  padding: 2px;
+  border-radius: 16px;
+  background-color: rgba(87,167,177,0.15);
+  margin: 0 8px;
+}
+
+#notif-date-sep {
+  padding: 4px;
+  border-radius: 12px;
+  background-color: rgba(87,167,177,0.15);
+}
+
+#notif-date-sep-label {
+  color: rgba(254,248,225,0.65);
+  font-weight: bold;
+}

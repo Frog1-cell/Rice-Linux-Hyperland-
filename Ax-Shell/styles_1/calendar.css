@@ -1,0 +1,68 @@
+#calendar {
+  border-radius: 16px;
+  border: 2px solid rgba(60, 113, 156, 0.35);
+  padding: 6px;
+  background-color: rgba(25, 26, 37, 0.85);
+}
+
+#header {
+  border-radius: 12px;
+  border: 2px solid rgba(247, 254, 254, 0.25);
+  padding: 6px;
+}
+
+#weekday-row {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+#month-label,
+#weekday-label,
+#day-label {
+  font-weight: bold;
+}
+
+#weekday-label {
+  color: #3c719c;
+  font-size: 9pt;
+}
+
+#day-label,
+#day-empty {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 9pt;
+}
+
+#day-empty {
+  color: rgba(247, 254, 254, 0.35);
+}
+
+#day-label.current-day {
+  background-color: rgba(60, 113, 156, 0.45);
+  color: #191a25;
+  border-radius: 20px;
+}
+
+#prev-month-button,
+#next-month-button {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+#prev-month-button:hover,
+#next-month-button:hover {
+  background-color: rgba(60, 113, 156, 0.25);
+}
+
+#prev-month-button:active,
+#next-month-button:active {
+  background-color: rgba(60, 113, 156, 0.45);
+}
+
+#month-button-label {
+  color: #f7fefe;
+  font-size: 18px;
+}
