@@ -1,0 +1,95 @@
+/* hyperland_custom_new.rasi — палитра под новый фон */
+
+* {
+    font: "JetBrainsMono Nerd Font 11";
+
+    /* Цвета из новой палитры */
+    bg:     rgba(72, 54, 54, 0.88);   /* #483636 */
+    fg:     #fef8e1;
+    accent: #57a7b1;
+    warn:   #b73936;
+    border: #b2b192;                  /* тёмно-бежевый */
+
+    border-color: @border;
+    text-color:   @fg;
+    background-color: transparent;
+
+    spacing: 8px;
+    padding: 8px;
+}
+
+/* Окно */
+window {
+    location: center;
+    anchor: center;
+    width: 35%;
+    border: 2px;
+    border-radius: 12px;
+    background-color: @bg;
+}
+
+/* Основной контейнер */
+mainbox {
+    padding: 14px;
+    spacing: 10px;
+    children: [ inputbar, listview ];
+}
+
+/* Строка ввода */
+inputbar {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.25);
+    children: [ prompt, entry ];
+}
+
+prompt {
+    text-color: #b2b192;  /* бежевый вместо синего */
+}
+
+entry {
+    text-color: @fg;
+    placeholder: "Запуск...";
+    placeholder-color: rgba(254, 248, 225, 0.55);
+}
+
+/* Список */
+listview {
+    lines: 5;
+    fixed-height: true;
+    spacing: 6px;
+    scrollbar: false;
+}
+
+/* Элемент */
+element {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+/* Hover */
+element normal active {
+    background-color: rgba(178, 177, 146, 0.18);  /* бежевый hover */
+}
+
+/* Selected */
+element selected {
+    background-color: rgba(178, 177, 146, 0.35);
+    text-color: #483636;
+}
+
+/* Urgent */
+element urgent {
+    background-color: rgba(183, 57, 54, 0.35);
+    text-color: @fg;
+}
+
+/* Иконки */
+element-icon {
+    size: 22px;
+}
+
+element-text {
+    vertical-align: 0.5;
+}

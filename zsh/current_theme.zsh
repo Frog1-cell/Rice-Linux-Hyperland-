@@ -1,0 +1,1 @@
+/home/frog/.config/zsh/themes/theme_mifu.zsh

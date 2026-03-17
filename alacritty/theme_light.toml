@@ -1,0 +1,33 @@
+[font]
+size = 20.0
+normal = { family = "JetBrainsMono Nerd Font Mono", style = "Regular" }
+
+[window]
+startup_mode = "Maximized"
+dynamic_padding = true
+
+[colors]
+primary = { background = "#483636", foreground = "#fef8e1" }
+
+cursor = { text = "#483636", cursor = "#fef8e1" }
+selection = { text = "#483636", background = "#b2b192" }
+
+[colors.normal]
+black   = "#483636"
+red     = "#b73936"
+green   = "#cef1d8"
+yellow  = "#ebae9e"
+blue    = "#57a7b1"
+magenta = "#bd9187"
+cyan    = "#6897a9"
+white   = "#fef8e1"
+
+[colors.bright]
+black   = "#7e605e"
+red     = "#b73936"
+green   = "#cef1d8"
+yellow  = "#ebae9e"
+blue    = "#57a7b1"
+magenta = "#bd9187"
+cyan    = "#6897a9"
+white   = "#fef8e1"
