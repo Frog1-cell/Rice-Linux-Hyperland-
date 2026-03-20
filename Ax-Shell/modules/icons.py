@@ -184,6 +184,13 @@ dice_4: str = "&#xf08e;"
 dice_5: str = "&#xf08f;"
 dice_6: str = "&#xf090;"
 
+# Добавьте в существующий файл или создайте новый
+star = "★"
+sun = "☀️"
+moon = "🌙"
+brush = "🖌️"
+palette = "🎨"
+
 exceptions: list[str] = ["font_family", "font_weight", "span"]
 
 

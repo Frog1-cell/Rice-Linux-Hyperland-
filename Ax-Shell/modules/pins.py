@@ -1,498 +1,818 @@
 import gi
+import math
 
 import config.data as data
 
 gi.require_version('Gtk', '3.0')
 import json
 import os
-import re
 import subprocess
-import tempfile
-import urllib.parse
-import urllib.request
+import time
+import glob
 from pathlib import Path
 
 import cairo
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, GObject
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+from gi.repository import Pango
 
 import modules.icons as icons
 
-SAVE_FILE = os.path.expanduser("~/.pins.json")
+SAVE_FILE = os.path.expanduser("~/.theme_state.json")
 
+# Размер иконок в зависимости от положения панели
 icon_size = 80
 if data.PANEL_THEME == "Panel" and data.BAR_POSITION in ["Left", "Right"] or data.PANEL_POSITION in ["Start", "End"]:
-    icon_size = 36
+    icon_size = 48
 
-def createSurfaceFromWidget(widget: Gtk.Widget) -> cairo.ImageSurface:
-    alloc = widget.get_allocation()
-    surface = cairo.ImageSurface(cairo.Format.ARGB32, alloc.width, alloc.height)
-    cr = cairo.Context(surface)
-    cr.set_source_rgba(1, 1, 1, 0)
-    cr.rectangle(0, 0, alloc.width, alloc.height)
-    cr.fill()
-    widget.draw(cr)
-    return surface
-
-def open_file(filepath):
-    try:
-        subprocess.Popen(["xdg-open", filepath])
-    except Exception as e:
-        print("Error opening file:", e)
-
-def open_url(url):
-    try:
-        subprocess.Popen(["xdg-open", url])
-    except Exception as e:
-        print("Error opening URL:", e)
-
-def is_url(text):
-
-    url_pattern = re.compile(
-        r'^(https?|ftp)://'
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
-        r'localhost|'
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-        r'(?::\d+)?'
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    return bool(url_pattern.match(text))
-
-def get_favicon_url(url):
-    """Extract the base domain from a URL and construct a favicon URL."""
-    parsed_url = urllib.parse.urlparse(url)
-    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-    return f"{base_url}/favicon.ico"
-
-def download_favicon(url, callback):
-    """Download a favicon asynchronously and call the callback with the result."""
-    favicon_url = get_favicon_url(url)
-
-    def do_download():
-        temp_file = None
+class ThemeManager:
+    """Встроенный менеджер тем с функциями переключения"""
+    
+    def __init__(self):
+        self.state_file = os.path.expanduser("~/.wallpaper_state")
+        self.config_dirs = {
+            'rofi': os.path.expanduser("~/.config/rofi/themes"),
+            'alacritty': os.path.expanduser("~/.config/alacritty"),
+            'hypr': os.path.expanduser("~/.config/hypr"),
+            'ax': os.path.expanduser("~/.config/Ax-Shell"),
+            'zsh': os.path.expanduser("~/.config/zsh"),
+        }
+        
+        # Создаем необходимые директории если их нет
+        for dir_path in self.config_dirs.values():
+            os.makedirs(dir_path, exist_ok=True)
+        
+        # Определение тем (добавьте поле 'type' для работы с neovim)
+        self.themes = [
+            {
+                'id': 0,
+                'name': 'Ми Фу',
+                'type': 'dark',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/Arknights: Enfield/Ми Фу',
+                'icon': 'weather-clear-night',
+                'transition': 'wipe',
+                'transition_pos': 'top-right',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom.rasi',
+                    'alacritty': 'theme_dark.toml',
+                    'hypr': 'border_dark.conf',
+                    'ax': 'styles_1',
+                    'zsh': 'theme_mifu.zsh'
+                }
+            },
+            {
+                'id': 1,
+                'name': 'Джуань',
+                'type': 'light',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/Arknights: Enfield/Чжуань Фаньи',
+                'icon': 'weather-clear',
+                'transition': 'wipe',
+                'transition_pos': 'top-right',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom_2.rasi',
+                    'alacritty': 'theme_light.toml',
+                    'hypr': 'border_light.conf',
+                    'ax': 'styles_2',
+                    'zsh': 'theme_zhuan.zsh'
+                }
+            },
+            {
+                'id': 2,
+                'name': 'Лэватайн',
+                'type': 'dark',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/Arknights: Enfield/Лэватайн',
+                'icon': 'weather-storm',
+                'transition': 'wipe',
+                'transition_pos': 'center',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom_leva.rasi',
+                    'alacritty': 'theme_leva.toml',
+                    'hypr': 'border_leva.conf',
+                    'ax': 'Ми Фу',
+                    'zsh': 'theme_leva.zsh'
+                }
+            },
+            {
+                'id': 3,
+                'name': 'Ивонна',
+                'type': 'light',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/Arknights: Enfield/Ивонна',
+                'icon': 'weather-few-clouds',
+                'transition': 'wipe',
+                'transition_pos': 'top',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom_yvonne.rasi',
+                    'alacritty': 'theme_yvonne.toml',
+                    'hypr': 'border_yvonne.conf',
+                    'ax': 'Ми Фу',
+                    'zsh': 'theme_yvonne.zsh'
+                }
+            },
+            {
+                'id': 4,
+                'name': 'Гилберта',
+                'type': 'dark',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/Arknights: Enfield/Гилберта',
+                'icon': 'weather-showers-scattered',
+                'transition': 'wipe',
+                'transition_pos': 'bottom-right',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom_gil.rasi',
+                    'alacritty': 'theme_gil.toml',
+                    'hypr': 'border_gil.conf',
+                    'ax': 'Ми Фу',
+                    'zsh': 'theme_gil.zsh'
+                }
+            },
+            {
+                'id': 5,
+                'name': 'Е Шуньгуан',
+                'type': 'dark',
+                'wallpaper': '~/.config/Ax-Shell/wallpaper/ZZZ/Е Шуньгуан',
+                'icon': 'weather-showers-scattered',
+                'transition': 'wipe',
+                'transition_pos': 'bottom-right',
+                'duration': 3,
+                'configs': {
+                    'rofi': 'hyperland_custom_gil.rasi',
+                    'alacritty': 'theme_gil.toml',
+                    'hypr': 'border_gil.conf',
+                    'ax': 'Ми Фу',
+                    'zsh': 'theme_gil.zsh'
+                }
+            }
+        ]
+        
+    def get_current_theme(self):
+        """Получить текущую тему (индекс)"""
         try:
-            temp_fd, temp_path = tempfile.mkstemp(suffix='.ico')
-            os.close(temp_fd)
-            temp_file = temp_path
-
-            urllib.request.urlretrieve(favicon_url, temp_path)
-
-            GLib.idle_add(callback, temp_path)
+            with open(self.state_file, 'r') as f:
+                return int(f.read().strip())
+        except:
+            return 0
+            
+    def get_theme_by_id(self, theme_id):
+        """Получить тему по ID"""
+        for theme in self.themes:
+            if theme['id'] == theme_id:
+                return theme
+        return self.themes[0]
+    
+    def reload_nvim_theme(self, theme_type):
+        """Переключить тему во всех запущенных Neovim"""
+        try:
+            # Ищем все запущенные серверы Neovim
+            socket_patterns = [
+                '/tmp/nvim.*',
+                f"/run/user/{os.getuid()}/nvim.*"
+            ]
+            
+            for pattern in socket_patterns:
+                for sock in glob.glob(pattern):
+                    if os.path.exists(sock) and not os.path.isdir(sock):
+                        try:
+                            subprocess.run(
+                                ['nvim', '--server', sock, '--remote-send', 
+                                 f'<C-\\><C-n>:lua vim.o.background="{theme_type}"<CR>:lua require("theme").setup()<CR>'],
+                                timeout=1,
+                                capture_output=True
+                            )
+                        except:
+                            pass
         except Exception as e:
-            print(f"Error downloading favicon: {e}")
-
-            if temp_file and os.path.exists(temp_file):
+            print(f"Error reloading nvim theme: {e}")
+    
+    def apply_theme(self, theme_id):
+        """Применить тему по ID"""
+        theme = self.get_theme_by_id(theme_id)
+        if not theme:
+            return False
+            
+        try:
+            wallpaper = os.path.expanduser(theme['wallpaper'])
+            
+            # Проверяем существует ли файл обоев
+            if not os.path.exists(wallpaper):
+                print(f"Wallpaper not found: {wallpaper}")
+                # Пробуем найти файл без учета регистра
+                wallpaper_dir = os.path.dirname(wallpaper)
+                wallpaper_name = os.path.basename(wallpaper)
+                if os.path.exists(wallpaper_dir):
+                    for f in os.listdir(wallpaper_dir):
+                        if f.lower() == wallpaper_name.lower():
+                            wallpaper = os.path.join(wallpaper_dir, f)
+                            break
+            
+            # Смена обоев через swww
+            swww_cmd = [
+                'swww', 'img', wallpaper,
+                '--transition-type', theme['transition'],
+                '--transition-pos', theme['transition_pos'],
+                '--transition-step', '75',
+                '--transition-duration', str(theme['duration']),
+                '--transition-fps', '50'
+            ]
+            
+            # Запускаем смену обоев
+            subprocess.run(swww_cmd, capture_output=True)
+            
+            # Небольшая задержка для применения обоев
+            time.sleep(1)
+            
+            # Применяем конфигурации для каждого компонента
+            configs = theme['configs']
+            
+            # Rofi
+            rofi_source = os.path.join(self.config_dirs['rofi'], configs['rofi'])
+            rofi_target = os.path.join(self.config_dirs['rofi'], 'current.rasi')
+            if os.path.exists(rofi_source):
                 try:
-                    os.remove(temp_file)
-                except:
-                    pass
-            GLib.idle_add(callback, None)
-
-    GLib.Thread.new("favicon-download", do_download, None)
-
-class FileChangeHandler(FileSystemEventHandler):
-    def __init__(self, app):
-        self.app = app
-
-    def on_any_event(self, event):
-        if event.is_directory:
-            return
-
-        for cell in self.app.cells:
-            if cell.content_type == 'file' and cell.content:
+                    if os.path.exists(rofi_target) or os.path.islink(rofi_target):
+                        os.remove(rofi_target)
+                    os.symlink(rofi_source, rofi_target)
+                    subprocess.run(['pkill', '-x', 'rofi'], capture_output=True)
+                except Exception as e:
+                    print(f"Error setting rofi theme: {e}")
+            
+            # Alacritty
+            alacritty_source = os.path.join(self.config_dirs['alacritty'], configs['alacritty'])
+            alacritty_target = os.path.join(self.config_dirs['alacritty'], 'theme.toml')
+            if os.path.exists(alacritty_source):
                 try:
-                    cell_real = os.path.realpath(cell.content)
-                    src_real = os.path.realpath(event.src_path)
-                    dest_real = os.path.realpath(getattr(event, 'dest_path', ''))
-                    if cell_real == src_real or (dest_real and cell_real == dest_real):
-                        GLib.idle_add(self.handle_file_event, cell, event)
-                except Exception:
-                    pass
+                    if os.path.exists(alacritty_target) or os.path.islink(alacritty_target):
+                        os.remove(alacritty_target)
+                    os.symlink(alacritty_source, alacritty_target)
+                    subprocess.run(['alacritty', 'msg', 'config-reload'], capture_output=True)
+                except Exception as e:
+                    print(f"Error setting alacritty theme: {e}")
+            
+            # Hyprland
+            hypr_source = os.path.join(self.config_dirs['hypr'], configs['hypr'])
+            hypr_target = os.path.join(self.config_dirs['hypr'], 'border.conf')
+            if os.path.exists(hypr_source):
+                try:
+                    if os.path.exists(hypr_target) or os.path.islink(hypr_target):
+                        os.remove(hypr_target)
+                    os.symlink(hypr_source, hypr_target)
+                    subprocess.run(['hyprctl', 'reload'], capture_output=True)
+                except Exception as e:
+                    print(f"Error setting hypr theme: {e}")
+            
+            # Ax-Shell
+            ax_source = os.path.join(self.config_dirs['ax'], configs['ax'])
+            ax_target = os.path.join(self.config_dirs['ax'], 'styles')
+            if os.path.exists(ax_source):
+                try:
+                    if os.path.exists(ax_target) or os.path.islink(ax_target):
+                        os.remove(ax_target)
+                    os.symlink(ax_source, ax_target, target_is_directory=True)
+                    subprocess.run(['fabric-cli', 'exec', 'ax-shell', 'app.set_css()'], 
+                                 capture_output=True)
+                except Exception as e:
+                    print(f"Error setting ax-shell theme: {e}")
+            
+            # Zsh
+            zsh_theme_dir = os.path.join(self.config_dirs['zsh'], 'themes')
+            os.makedirs(zsh_theme_dir, exist_ok=True)
+            zsh_source = os.path.join(zsh_theme_dir, configs['zsh'])
+            zsh_target = os.path.join(self.config_dirs['zsh'], 'current_theme.zsh')
+            if os.path.exists(zsh_source):
+                try:
+                    if os.path.exists(zsh_target) or os.path.islink(zsh_target):
+                        os.remove(zsh_target)
+                    os.symlink(zsh_source, zsh_target)
+                except Exception as e:
+                    print(f"Error setting zsh theme: {e}")
+            
+            # Neovim
+            self.reload_nvim_theme(theme['type'])
+            
+            # Сохраняем состояние
+            with open(self.state_file, 'w') as f:
+                f.write(str(theme_id))
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error applying theme: {e}")
+            return False
+    
+    def toggle_theme(self):
+        """Переключить на следующую тему по кругу"""
+        current = self.get_current_theme()
+        next_id = (current + 1) % len(self.themes)
+        return self.apply_theme(next_id)
 
-    def handle_file_event(self, cell, event):
-        if event.event_type == 'deleted':
-            cell.clear_cell()
-            self.app.save_state()
-        elif event.event_type == 'moved':
-            if hasattr(event, 'dest_path') and os.path.exists(event.dest_path):
-                cell.content = event.dest_path
-                cell.update_display()
-                self.app.save_state()
-                self.app.add_monitor_for_path(os.path.dirname(event.dest_path))
-
-class Cell(Gtk.EventBox):
-    def __init__(self, app, content=None, content_type=None):
-        super().__init__(name="pin-cell")
+class ThemeCell(Gtk.EventBox):
+    """Ячейка темы в списке (без иконки, только название)"""
+    __gsignals__ = {
+        'selected': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+    }
+    
+    def __init__(self, app, theme_data):
+        super().__init__(name="theme-cell")
         self.app = app
-        self.content = content
-        self.content_type = content_type
-        self.box = Box(name="pin-cell-box", orientation="v", spacing=4)
+        self.theme_data = theme_data
+        self.is_active_state = False
+        self.is_selected_state = False
+        
+        # Основной контейнер
+        self.box = Box(name="theme-cell-box", orientation="h", spacing=12)
         self.add(self.box)
         
-
-        self.favicon_temp_path = None
-
-        target_dest = Gtk.TargetEntry.new("text/uri-list", 0, 0)
-        self.drag_dest_set(Gtk.DestDefaults.ALL, [target_dest], Gdk.DragAction.COPY)
-        self.connect("drag-data-received", self.on_drag_data_received)
-
-        targets = [
-            Gtk.TargetEntry.new("text/uri-list", 0, 0),
-            Gtk.TargetEntry.new("text/plain", 0, 1)
-        ]
-        self.drag_source_set(Gdk.ModifierType.BUTTON1_MASK, targets, Gdk.DragAction.COPY)
-        self.connect("drag-data-get", self.on_drag_data_get)
-
-        self.connect("button-press-event", self.on_button_press)
-
-        self.connect("drag-begin", self.on_drag_begin)
-
-        self.update_display()
-
-    def update_display(self):
-
-        if self.favicon_temp_path and os.path.exists(self.favicon_temp_path):
-            try:
-                os.remove(self.favicon_temp_path)
-                self.favicon_temp_path = None
-            except Exception as e:
-                print(f"Error removing temp favicon: {e}")
+        # Название темы
+        self.name_label = Label(
+            name="theme-name",
+            label=theme_data['name'],
+            justification="left",
+            ellipsization="end",
+            style="font-weight: bold; font-size: 16px;"
+        )
+        self.box.pack_start(self.name_label, True, True, 0)
         
-        for child in self.box.get_children():
-            self.box.remove(child)
-        
-        if self.content is None:
-            label = Label(name="pin-add", markup=icons.paperclip)
-            self.box.pack_start(label, True, True, 0)
-        else:
-            if self.content_type == 'file':
-                widget = self.get_file_preview(self.content)
-                self.box.pack_start(widget, True, True, 0)
-                label = Label(name="pin-file", label=os.path.basename(self.content), justification="center", ellipsization="middle")
-                self.box.pack_start(label, False, False, 0)
-            elif self.content_type == 'text':
-                if is_url(self.content):
-
-                    icon_container = Box(name="pin-icon-container", orientation="v")
-                    self.box.pack_start(icon_container, True, True, 0)
-                    
-
-                    url_icon = Label(name="pin-url-icon", markup=icons.world, style=f"font-size: {icon_size}px;")
-                    icon_container.pack_start(url_icon, True, True, 0)
-                    
-
-                    domain = re.sub(r'^https?://', '', self.content)
-                    domain = domain.split('/')[0]
-                    label = Label(name="pin-url", label=domain, justification="center", ellipsization="end")
-                    self.box.pack_start(label, False, False, 0)
-                    
-
-                    download_favicon(
-                        self.content, 
-                        lambda path: self.update_favicon(icon_container, url_icon, path)
-                    )
-                else:
-
-                    label = Label(name="pin-text", label=self.content.split('\n')[0], justification="center", ellipsization="end", line_wrap="word-char")
-                    self.box.pack_start(label, True, True, 0)
-        self.box.show_all()
-        if not self.app.loading_state:
-            self.app.save_state()
+        # Обработчики событий
+        self.connect("button-press-event", self.on_click)
+        self.update_style()
     
-    def update_favicon(self, container, icon_widget, favicon_path):
-        """Update the icon with the downloaded favicon or keep the default."""
-        if not favicon_path or not os.path.exists(favicon_path):
-
-            return
-        
-        try:
-
-            self.favicon_temp_path = favicon_path
-            
-
-            if data.PANEL_THEME == "Panel" and data.BAR_POSITION in ["Left", "Right"]:
-
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    favicon_path, width=36, height=36, preserve_aspect_ratio=True)
-            else:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    favicon_path, width=48, height=48, preserve_aspect_ratio=True)
-            
-
-            container.remove(icon_widget)
-            
-
-            img = Gtk.Image.new_from_pixbuf(pixbuf)
-            img.set_name("pin-favicon")
-            container.pack_start(img, True, True, 0)
-            
-
-            container.show_all()
-        except Exception as e:
-            print(f"Error setting favicon: {e}")
-
-
-    def get_file_preview(self, filepath):
-        try:
-            file = Gio.File.new_for_path(filepath)
-            info = file.query_info("standard::content-type", Gio.FileQueryInfoFlags.NONE, None)
-            content_type = info.get_content_type()
-        except Exception:
-            content_type = None
-
-        icon_theme = Gtk.IconTheme.get_default()
-
-        if content_type == "inode/directory":
-            try:
-                pixbuf = icon_theme.load_icon("default-folder", icon_size, 0)
-                return Gtk.Image.new_from_pixbuf(pixbuf)
-            except Exception:
-                print("Error loading folder icon")
-                return Gtk.Image.new_from_icon_name("default-folder", Gtk.IconSize.DIALOG)
-        
-        if content_type and content_type.startswith("image/"):
-            try:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    filepath, width=icon_size, height=icon_size, preserve_aspect_ratio=True)
-                return Gtk.Image.new_from_pixbuf(pixbuf)
-            except Exception as e:
-                print("Error loading image preview:", e)
-        
-        elif content_type and content_type.startswith("video/"):
-            try:
-                pixbuf = icon_theme.load_icon("video-x-generic", icon_size, 0)
-                return Gtk.Image.new_from_pixbuf(pixbuf)
-            except Exception:
-                print("Error loading video icon")
-                return Gtk.Image.new_from_icon_name("video-x-generic", Gtk.IconSize.DIALOG)
+    def update_style(self):
+        """Обновить стиль на основе состояний"""
+        if self.is_selected_state:
+            self.set_name("theme-cell-selected")
+        elif self.is_active_state:
+            self.set_name("theme-cell-active")
         else:
-            icon_name = "text-x-generic"
-            if content_type:
-                themed_icon = Gio.content_type_get_icon(content_type)
-                if hasattr(themed_icon, 'get_names'):
-                    names = themed_icon.get_names()
-                    if names:
-                        icon_name = names[0]
-            try:
-                pixbuf = icon_theme.load_icon(icon_name, icon_size, 0)
-                return Gtk.Image.new_from_pixbuf(pixbuf)
-            except Exception:
-                print("Error loading icon", icon_name)
-                return Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.DIALOG)
-
-    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
-        if self.content is None and data.get_length() >= 0:
-            uris = data.get_uris()
-            if uris:
-                try:
-                    filepath, _ = GLib.filename_from_uri(uris[0])
-                    self.content = filepath
-                    self.content_type = 'file'
-                    self.update_display()
-                except Exception as e:
-                    print("Error getting file from URI:", e)
-        drag_context.finish(True, False, time)
-
-    def on_drag_data_get(self, widget, drag_context, data, info, time):
-        if self.content is None:
-            return
-        if info == 0 and self.content_type == 'file':
-            uri = GLib.filename_to_uri(self.content)
-            data.set_uris([uri])
-        elif info == 1 and self.content_type == 'text':
-            data.set_text(self.content, -1)
-
-    def on_drag_begin(self, widget, context):
-
-        if self.content_type == 'file':
-            surface = createSurfaceFromWidget(self)
-            Gtk.drag_set_icon_surface(context, surface)
-
-    def on_button_press(self, widget, event):
-        if self.content is None:
-            if event.button == 1:
-                self.select_file()
-            elif event.button == 2:
-                clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-                text = clipboard.wait_for_text()
-                if text:
-                    self.content = text
-                    self.content_type = 'text'
-                    self.update_display()
-        else:
-            if self.content_type == 'file':
-                if event.button == 1 and event.type == Gdk.EventType._2BUTTON_PRESS:
-                    open_file(self.content)
-                elif event.button == 3:
-                    self.clear_cell()
-            elif self.content_type == 'text':
-                if event.button == 1:
-
-                    if is_url(self.content):
-
-                        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-                        clipboard.set_text(self.content, -1)
-                        
-
-                        if not (event.state & Gdk.ModifierType.CONTROL_MASK):
-                            open_url(self.content)
-                    else:
-
-                        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-                        clipboard.set_text(self.content, -1)
-                elif event.button == 3:
-                    self.clear_cell()
+            self.set_name("theme-cell")
+    
+    def set_active(self, is_active):
+        """Установить активное состояние темы (применена в системе)"""
+        if self.is_active_state != is_active:
+            self.is_active_state = is_active
+            self.update_style()
+    
+    def set_selected(self, is_selected):
+        """Установить выделение для предпросмотра"""
+        if self.is_selected_state != is_selected:
+            self.is_selected_state = is_selected
+            self.update_style()
+    
+    def on_click(self, widget, event):
+        if event.button == 1:  # Левый клик
+            self.app.select_theme(self.theme_data['id'])
         return True
 
-    def select_file(self):
-        dialog = Gtk.FileChooserDialog(
-            title="Select File",
-            parent=self.get_toplevel(),
-            action=Gtk.FileChooserAction.OPEN
-        )
-        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-        if dialog.run() == Gtk.ResponseType.OK:
-            filepath = dialog.get_filename()
-            self.content = filepath
-            self.content_type = 'file'
-            self.update_display()
-        dialog.destroy()
-
-    def clear_cell(self):
-
-        if self.favicon_temp_path and os.path.exists(self.favicon_temp_path):
-            try:
-                os.remove(self.favicon_temp_path)
-                self.favicon_temp_path = None
-            except Exception as e:
-                print(f"Error removing temp favicon: {e}")
+class ImageCover(Gtk.DrawingArea):
+    """Виджет для отображения изображения с масштабированием cover и скруглёнными углами"""
+    def __init__(self, radius=16):
+        super().__init__()
+        self.pixbuf = None
+        self.radius = radius
+        self.connect("draw", self.on_draw)
+    
+    def set_pixbuf(self, pixbuf):
+        self.pixbuf = pixbuf
+        self.queue_draw()
+    
+    def _rounded_rectangle(self, cr, x, y, width, height, radius):
+        """Добавляет прямоугольник со скруглёнными углами к текущему пути"""
+        cr.move_to(x + radius, y)
+        cr.line_to(x + width - radius, y)
+        cr.arc(x + width - radius, y + radius, radius, -math.pi / 2, 0)
+        cr.line_to(x + width, y + height - radius)
+        cr.arc(x + width - radius, y + height - radius, radius, 0, math.pi / 2)
+        cr.line_to(x + radius, y + height)
+        cr.arc(x + radius, y + height - radius, radius, math.pi / 2, math.pi)
+        cr.line_to(x, y + radius)
+        cr.arc(x + radius, y + radius, radius, math.pi, 3 * math.pi / 2)
+        cr.close_path()
+    
+    def on_draw(self, widget, cr):
+        if not self.pixbuf:
+            return False
+        allocation = self.get_allocation()
+        width = allocation.width
+        height = allocation.height
+        img_w = self.pixbuf.get_width()
+        img_h = self.pixbuf.get_height()
+        if width <= 0 or height <= 0 or img_w <= 0 or img_h <= 0:
+            return False
         
-        self.content = None
-        self.content_type = None
-        self.update_display()
+        # Масштабируем для покрытия всей области (cover)
+        scale = max(width / img_w, height / img_h)
+        draw_w = img_w * scale
+        draw_h = img_h * scale
+        x = (width - draw_w) / 2
+        y = (height - draw_h) / 2
+        
+        # Масштабируем pixbuf до нужного размера
+        scaled_pixbuf = self.pixbuf.scale_simple(int(draw_w), int(draw_h), GdkPixbuf.InterpType.BILINEAR)
+        
+        # Обрезаем скруглёнными углами
+        self._rounded_rectangle(cr, 0, 0, width, height, self.radius)
+        cr.clip()
+        
+        # Рисуем изображение
+        Gdk.cairo_set_source_pixbuf(cr, scaled_pixbuf, x, y)
+        cr.paint()
+        
+        # Сбрасываем clip для следующих отрисовок
+        cr.reset_clip()
+        return True
 
-class Pins(Gtk.Box):
-    def __init__(self, **kwargs):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-
-        self.loading_state = True
-        self.monitored_paths = set()
-        self.observer = Observer()
-        self.event_handler = FileChangeHandler(self)
-
-        self.cells = []
-
-
-        grid = Gtk.Grid(row_spacing=8, column_spacing=8, name="pin-grid")
-        grid.set_column_homogeneous(True)
-        grid.set_row_homogeneous(True)
-
-
-
-
-
-
-
-
-        scrolled_window = ScrolledWindow(child=grid, name="scrolled-window", style_classes="pins", propagate_width=False, propagate_height=False)
-        scrolled_window.set_hexpand(True)
-        scrolled_window.set_vexpand(True)
-        scrolled_window.set_halign(Gtk.Align.FILL)
-        scrolled_window.set_valign(Gtk.Align.FILL)
-        self.pack_start(scrolled_window, True, True, 0)
-
-
-        if data.PANEL_THEME == "Panel" and (data.BAR_POSITION in ["Left", "Right"] or data.PANEL_POSITION in ["Start", "End"]):
-            for row in range(10):
-                for col in range(3):
-                    cell = Cell(self)
-                    self.cells.append(cell)
-                    grid.attach(cell, col, row, 1, 1)
-        else:
-            for row in range(6):
-                for col in range(5):
-                    cell = Cell(self)
-                    self.cells.append(cell)
-                    grid.attach(cell, col, row, 1, 1)
-
-        self.load_state()
-        self.loading_state = False
-        self.start_file_monitoring()
-
-        self.drag_dest_set(Gtk.DestDefaults.ALL, [], Gdk.DragAction.COPY)
-        self.connect("drag-data-received", self.on_drag_data_received)
-
-    def start_file_monitoring(self):
-        for cell in self.cells:
-            if cell.content_type == 'file' and cell.content:
-                dir_path = os.path.dirname(cell.content)
-                if os.path.exists(dir_path) and dir_path not in self.monitored_paths:
-                    self.observer.schedule(self.event_handler, dir_path, recursive=False)
-                    self.monitored_paths.add(dir_path)
-        self.observer.start()
-
-    def add_monitor_for_path(self, path):
-        if path not in self.monitored_paths and os.path.exists(path):
-            self.observer.schedule(self.event_handler, path, recursive=False)
-            self.monitored_paths.add(path)
-
-    def save_state(self):
-        state = []
-        for cell in self.cells:
-            state.append({
-                'content_type': cell.content_type,
-                'content': cell.content
-            })
-        try:
-            with open(SAVE_FILE, 'w') as f:
-                json.dump(state, f)
-        except Exception as e:
-            print("Error saving state:", e)
-
-    def load_state(self):
-        if not os.path.exists(SAVE_FILE):
+class ThemePreview(Gtk.Box):
+    """Виджет предпросмотра обоев"""
+    def __init__(self, theme_manager):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.theme_manager = theme_manager
+        self.current_theme_id = None
+        self.preview_cache = {}  # Кэш для загруженных изображений
+        
+        # Заголовок
+        self.preview_label = Label(
+            name="preview-label",
+            label="Предпросмотр",
+            justification="center",
+            style="font-size: 18px; font-weight: bold;"
+        )
+        self.pack_start(self.preview_label, False, False, 0)
+        
+        # Контейнер для изображения (уменьшенный размер)
+        self.image_container = Box(name="preview-image-container", orientation="v")
+        self.image_container.set_size_request(600, 400)  # Уменьшили размеры
+        self.pack_start(self.image_container, True, True, 0)
+        
+        # Изначально пустое изображение
+        self.image_cover = None
+        self.show_placeholder()
+        
+        # Таймер для debounce обновлений
+        self.update_timeout_id = None
+        
+    def show_placeholder(self):
+        """Показать заглушку, если нет изображения"""
+        if self.image_cover:
+            self.image_container.remove(self.image_cover)
+            self.image_cover = None
+        
+        label = Label(
+            name="preview-placeholder",
+            label="Выберите тему для предпросмотра",
+            justification="center",
+            style="font-size: 16px; opacity: 0.6; padding: 30px;"
+        )
+        self.image_container.pack_start(label, True, True, 0)
+        self.image_container.show_all()
+    
+    def load_preview_async(self, theme_id):
+        """Асинхронная загрузка предпросмотра"""
+        if theme_id == self.current_theme_id:
+            return  # Уже загружаем эту тему
+        
+        self.current_theme_id = theme_id
+        theme = self.theme_manager.get_theme_by_id(theme_id)
+        wallpaper_path = os.path.expanduser(theme['wallpaper'])
+        
+        # Проверяем кэш
+        if wallpaper_path in self.preview_cache:
+            self.display_pixbuf(self.preview_cache[wallpaper_path])
             return
-        try:
-            with open(SAVE_FILE, 'r') as f:
-                state = json.load(f)
-            for i, cell_data in enumerate(state):
-                if i < len(self.cells):
-                    content = cell_data.get('content')
-                    content_type = cell_data.get('content_type')
-                    self.cells[i].content = content
-                    self.cells[i].content_type = content_type
-                    self.cells[i].update_display()
-        except Exception as e:
-            print("Error loading state:", e)
-
-    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
-        if data.get_length() >= 0:
-            uris = data.get_uris()
-            for uri in uris:
-                try:
-                    filepath, _ = GLib.filename_from_uri(uri)
-                    for cell in self.cells:
-                        if cell.content is None:
-                            cell.content = filepath
-                            cell.content_type = 'file'
-                            cell.update_display()
-                            break
-                except Exception as e:
-                    print("Error getting file from URI:", e)
-        drag_context.finish(True, False, time)
-
-    def stop_monitoring(self):
-
-        for cell in self.cells:
-            if hasattr(cell, 'favicon_temp_path') and cell.favicon_temp_path and os.path.exists(cell.favicon_temp_path):
-                try:
-                    os.remove(cell.favicon_temp_path)
-                except Exception:
-                    pass
+        
+        # Загружаем в отдельном потоке
+        def load_thread(_):
+            try:
+                if os.path.exists(wallpaper_path):
+                    # Загружаем с размерами контейнера для экономии ресурсов
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                        wallpaper_path,
+                        width=600, height=400,
+                        preserve_aspect_ratio=True
+                    )
+                    # Сохраняем в кэш
+                    self.preview_cache[wallpaper_path] = pixbuf
+                    # Ограничиваем размер кэша (оставляем последние 3)
+                    if len(self.preview_cache) > 3:
+                        # Удаляем самый старый
+                        oldest = next(iter(self.preview_cache))
+                        del self.preview_cache[oldest]
                     
-        self.observer.stop()
-        self.observer.join()
+                    GLib.idle_add(self.display_pixbuf, pixbuf)
+                else:
+                    GLib.idle_add(self.show_error, f"Файл не найден:\n{os.path.basename(wallpaper_path)}")
+            except Exception as e:
+                print(f"Error loading preview: {e}")
+                GLib.idle_add(self.show_error, "Ошибка загрузки\nизображения")
+        
+        GLib.Thread.new("preview-load", load_thread, None)
+    
+    def display_pixbuf(self, pixbuf):
+        """Отобразить загруженное изображение (вызывается в основном потоке)"""
+        if not pixbuf:
+            return
+            
+        # Убираем предыдущее содержимое
+        for child in self.image_container.get_children():
+            self.image_container.remove(child)
+        
+        # Создаём и добавляем виджет с обложкой
+        self.image_cover = ImageCover(radius=16)  # скругление 16px
+        self.image_cover.set_pixbuf(pixbuf)
+        self.image_cover.set_vexpand(True)
+        self.image_cover.set_hexpand(True)
+        self.image_container.pack_start(self.image_cover, True, True, 0)
+        self.image_container.show_all()
+    
+    def show_error(self, message):
+        """Показать сообщение об ошибке"""
+        for child in self.image_container.get_children():
+            self.image_container.remove(child)
+        
+        label = Label(
+            name="preview-error",
+            label=message,
+            justification="center",
+            style="font-size: 14px; opacity: 0.6; padding: 30px;"
+        )
+        self.image_container.pack_start(label, True, True, 0)
+        self.image_container.show_all()
+    
+    def update_preview(self, theme_id):
+        """Обновить предпросмотр для темы (с debounce)"""
+        # Отменяем предыдущий запрос на обновление
+        if self.update_timeout_id:
+            GLib.source_remove(self.update_timeout_id)
+            self.update_timeout_id = None
+        
+        # Запускаем с небольшой задержкой (для избежания множественных обновлений при скролле)
+        self.update_timeout_id = GLib.timeout_add(50, self.do_update_preview, theme_id)
+    
+    def do_update_preview(self, theme_id):
+        """Фактическое обновление предпросмотра"""
+        self.update_timeout_id = None
+        self.load_preview_async(theme_id)
+        return False
+    
+    def on_apply_clicked(self):
+        """Применить выбранную тему (вызывается из обработчика клавиш)"""
+        if self.current_theme_id is not None:
+            # Функция для потока
+            def apply_thread(_):
+                if self.theme_manager.apply_theme(self.current_theme_id):
+                    GLib.idle_add(self.on_theme_applied)
+            
+            GLib.Thread.new("theme-apply", apply_thread, None)
+    
+    def on_theme_applied(self):
+        """Обновить состояние после применения (можно добавить уведомление)"""
+        pass
+
+class Themes(Gtk.Box):
+    def __init__(self, **kwargs):
+        super().__init__(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+        
+        self.theme_manager = ThemeManager()
+        self.cells = []
+        self.current_theme_id = self.theme_manager.get_current_theme()
+        self.selected_index = self.current_theme_id
+        self.filter_text = ""
+        
+        # Левая панель - список тем
+        left_panel = Box(name="themes-left-panel", orientation="v", spacing=10)
+        left_panel.set_size_request(400, -1)
+        
+        # Заголовок списка
+        left_panel.pack_start(
+            Label(name="themes-list-title", label="Список тем", 
+                 justification="center", style="font-size: 18px; font-weight: bold;"),
+            False, False, 10
+        )
+        
+        # Поисковая строка (всегда видна, но активируется по нажатию 'l')
+        search_box = Box(name="search-box", orientation="h", spacing=5)
+        search_icon = Label(name="search-icon", label="🔍", style="font-size: 16px;")
+        search_box.pack_start(search_icon, False, False, 5)
+        
+        self.search_entry = Gtk.Entry(name="search-entry")
+        self.search_entry.set_placeholder_text("Поиск тем...")
+        self.search_entry.connect("changed", self.on_search_changed)
+        # Обработка клавиш в поле поиска
+        self.search_entry.connect("key-press-event", self.on_search_key_press)
+        search_box.pack_start(self.search_entry, True, True, 0)
+        
+        left_panel.pack_start(search_box, False, False, 5)
+        
+        # Контейнер с прокруткой для списка тем
+        self.themes_scroll = Gtk.ScrolledWindow()
+        self.themes_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.themes_scroll.set_vexpand(True)
+        
+        self.themes_list = Box(name="themes-list", orientation="v", spacing=8)
+        self.themes_scroll.add(self.themes_list)
+        left_panel.pack_start(self.themes_scroll, True, True, 0)
+        
+        # Подсказка по управлению
+        hint_label = Label(
+            name="navigation-hint",
+            label="↑/↓ - навигация, Enter/→ - применить, L - поиск",
+            justification="center",
+            style="font-size: 14px; opacity: 0.7; padding: 10px;"
+        )
+        left_panel.pack_start(hint_label, False, False, 0)
+        
+        # Правая панель - предпросмотр
+        right_panel = ThemePreview(self.theme_manager)
+        right_panel.set_size_request(650, -1)  # Ширина под новый размер превью
+        
+        # Собираем всё вместе
+        self.pack_start(left_panel, False, False, 0)
+        self.pack_start(right_panel, True, True, 0)
+        
+        # Создаём ячейки для всех тем
+        self.all_cells = []
+        for i, theme_data in enumerate(self.theme_manager.themes):
+            theme_data['is_active'] = (theme_data['id'] == self.current_theme_id)
+            cell = ThemeCell(self, theme_data)
+            self.all_cells.append(cell)
+        
+        # Изначально показываем все
+        self.filter_themes()
+        
+        # Устанавливаем начальное выделение
+        self.update_selection(self.selected_index)
+        
+        # Настройка фокуса для клавиатурной навигации
+        self.set_can_focus(True)
+        self.connect("key-press-event", self.on_key_press)
+        GLib.idle_add(self.grab_focus)
+        
+        # Мониторинг изменений состояния темы (реже, чтобы не нагружать)
+        GLib.timeout_add_seconds(5, self.check_theme_state)
+    
+    def on_search_changed(self, entry):
+        """Обработка изменения текста поиска"""
+        self.filter_text = entry.get_text().lower()
+        # Используем idle_add для отложенного выполнения фильтрации
+        if hasattr(self, '_filter_timeout') and self._filter_timeout is not None:
+            GLib.source_remove(self._filter_timeout)
+        self._filter_timeout = GLib.timeout_add(150, self.filter_themes)
+    
+    def filter_themes(self):
+        """Фильтровать список тем по тексту поиска"""
+        self._filter_timeout = None
+        
+        # Очищаем список
+        for child in self.themes_list.get_children():
+            self.themes_list.remove(child)
+        
+        self.cells = []
+        
+        # Добавляем только те, что проходят фильтр
+        for cell in self.all_cells:
+            theme_name = cell.theme_data['name'].lower()
+            if self.filter_text in theme_name:
+                self.cells.append(cell)
+                self.themes_list.pack_start(cell, False, False, 0)
+        
+        self.themes_list.show_all()
+        
+        # Если после фильтрации выделенный индекс вне диапазона, сбрасываем на первый
+        if self.cells:
+            if self.selected_index >= len(self.cells):
+                self.selected_index = 0
+            self.update_selection(self.selected_index)
+            if self.cells:
+                first_id = self.cells[0].theme_data['id']
+                right_panel = self.get_children()[1]
+                right_panel.update_preview(first_id)
+            self.scroll_to_selected()
+        else:
+            self.selected_index = -1
+            right_panel = self.get_children()[1]
+            right_panel.show_placeholder()
+        
+        return False
+    
+    def select_theme(self, theme_id):
+        """Выбрать тему для предпросмотра (без применения)"""
+        for i, cell in enumerate(self.cells):
+            if cell.theme_data['id'] == theme_id:
+                self.selected_index = i
+                self.update_selection(i)
+                right_panel = self.get_children()[1]
+                right_panel.update_preview(theme_id)
+                self.scroll_to_selected()
+                break
+    
+    def update_selection(self, index):
+        """Обновить визуальное выделение ячеек"""
+        for i, cell in enumerate(self.cells):
+            cell.set_selected(i == index)
+    
+    def scroll_to_selected(self):
+        """Прокрутить список так, чтобы выбранная ячейка была видима"""
+        if not self.cells or self.selected_index < 0 or self.selected_index >= len(self.cells):
+            return
+        cell = self.cells[self.selected_index]
+        # Проверяем, что ячейка уже отрисована
+        if not cell.get_realized():
+            GLib.idle_add(self.scroll_to_selected)
+            return
+        cell_allocation = cell.get_allocation()
+        cell_height = cell_allocation.height
+        if cell_height <= 0:
+            GLib.idle_add(self.scroll_to_selected)
+            return
+        
+        vadj = self.themes_scroll.get_vadjustment()
+        page_size = vadj.get_page_size()
+        # Расстояние между ячейками (spacing=8)
+        spacing = 8
+        # Позиция верхнего края ячейки относительно начала списка
+        y_pos = self.selected_index * (cell_height + spacing)
+        # Если ячейка выше видимой области
+        if y_pos < vadj.get_value():
+            vadj.set_value(y_pos)
+        # Если ячейка ниже видимой области
+        elif y_pos + cell_height > vadj.get_value() + page_size:
+            vadj.set_value(y_pos + cell_height - page_size)
+    
+    def on_key_press(self, widget, event):
+        """Обработка нажатий клавиш"""
+        keyval = event.keyval
+        
+        # Активация поиска по 'l'
+        if keyval == Gdk.KEY_l or keyval == Gdk.KEY_L:
+            # Если фокус не в поле поиска, то перевести фокус
+            if not self.search_entry.has_focus():
+                self.search_entry.grab_focus()
+                self.search_entry.set_text("")
+                self.search_entry.select_region(0, -1)  # выделить весь текст
+            return True
+        
+        # Если фокус в поле поиска, не обрабатываем навигацию по списку
+        if self.search_entry.has_focus():
+            return False
+        
+        if not self.cells:
+            return False
+            
+        if keyval == Gdk.KEY_Up:
+            if self.selected_index > 0:
+                self.selected_index -= 1
+                self.update_selection(self.selected_index)
+                theme_id = self.cells[self.selected_index].theme_data['id']
+                right_panel = self.get_children()[1]
+                right_panel.update_preview(theme_id)
+                self.scroll_to_selected()
+            return True
+        elif keyval == Gdk.KEY_Down:
+            if self.selected_index < len(self.cells) - 1:
+                self.selected_index += 1
+                self.update_selection(self.selected_index)
+                theme_id = self.cells[self.selected_index].theme_data['id']
+                right_panel = self.get_children()[1]
+                right_panel.update_preview(theme_id)
+                self.scroll_to_selected()
+            return True
+        elif keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+            if self.selected_index >= 0:
+                right_panel = self.get_children()[1]
+                right_panel.on_apply_clicked()
+            return True
+        return False
+    
+    def on_search_key_press(self, widget, event):
+        """Обработка клавиш в поле поиска"""
+        if event.keyval == Gdk.KEY_Escape:
+            # Очищаем поиск и возвращаем фокус на список
+            widget.set_text("")
+            self.grab_focus()
+            return True
+        return False
+    
+    def check_theme_state(self):
+        """Проверить изменилось ли состояние темы извне"""
+        new_state = self.theme_manager.get_current_theme()
+        if new_state != self.current_theme_id:
+            self.current_theme_id = new_state
+            self.update_active_state()
+        return True
+    
+    def update_active_state(self):
+        """Обновить активное состояние всех ячеек"""
+        for cell in self.all_cells:
+            is_active = (cell.theme_data['id'] == self.current_theme_id)
+            cell.set_active(is_active)
+    
+    def stop_monitoring(self):
+        """Остановка мониторинга (вызывается при закрытии)"""
+        pass
+
+# Для обратной совместимости
+Pins = Themes

@@ -104,3 +104,5 @@ BAR_METRICS_DISKS = _get_config_var("bar_metrics_disks")
 METRICS_VISIBLE = _get_config_var("metrics_visible")
 METRICS_SMALL_VISIBLE = _get_config_var("metrics_small_visible")
 SELECTED_MONITORS = _get_config_var("selected_monitors")
+# Добавьте или измените:
+PIN_WIDGET = "themes"  # Вместо обычных закреплений используем переключатель тем
